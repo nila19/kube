@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue
+  labels:
+    app: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: blue
+  template:
+    metadata:
+      labels:
+        app: blue
+    spec:
+      containers:
+      - name: blue
+        image: balavigneswaran/node-app
+        imagePullPolicy: Never
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
+        ports:
+        - containerPort: 8080
+      # - name: my-nginx
+      #   image: nginx:alpine
+      #   resources:
+      #     limits:
+      #       memory: "128Mi"
+      #       cpu: "100m"
+      #   ports:
+      #     - containerPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blue-test
+  labels:
+    app: blue-test
+spec:
+  type: LoadBalancer
+  selector:
+    app: blue
+  ports:
+  - port: 8081
+    targetPort: 8080
+    protocol: TCP
+    name: http

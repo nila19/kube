@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-config
+  labels:
+    app: shopping-config
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopping-config
+  template:
+    metadata:
+      labels:
+        app: shopping-config
+    spec:
+      containers:
+      - name: shopping-config
+        image: balavigneswaran/spring-cloud/configserver:0.0.1-SNAPSHOT
+        imagePullPolicy: Never
+        resources:
+          limits:
+            memory: "0.4G"
+            cpu: "0.25"
+        ports:
+        - containerPort: 8888
+        envFrom:
+          - configMapRef:
+              name: shopping-config-app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-config
+  labels:
+    app: shopping-config
+spec:
+  type: LoadBalancer
+  selector:
+    app: shopping-config
+  ports:
+  - port: 8888
+    targetPort: 8888
+    protocol: TCP
+    name: http
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shopping-config-app
+  labels:
+    app: shopping-config
+data:
+  PORT: "8888"
+  CONFIG_UID: "root"
+  CONFIG_PWD: "p@ssw0rd"

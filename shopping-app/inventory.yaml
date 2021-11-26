@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-inventory
+  labels:
+    app: shopping-inventory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopping-inventory
+  template:
+    metadata:
+      labels:
+        app: shopping-inventory
+    spec:
+      containers:
+      - name: shopping-inventory
+        image: balavigneswaran/spring-cloud/inventory:0.0.1-SNAPSHOT
+        imagePullPolicy: Never
+        resources:
+          limits:
+            memory: "0.5G"
+            cpu: "0.25"
+        ports:
+        - containerPort: 8083
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: dev
+        envFrom:
+          - configMapRef:
+              name: shopping-inventory-app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-inventory
+  labels:
+    app: shopping-inventory
+spec:
+  type: LoadBalancer
+  selector:
+    app: shopping-inventory
+  ports:
+  - port: 8083
+    targetPort: 8083
+    protocol: TCP
+    name: http
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shopping-inventory-app
+  labels:
+    app: shopping-inventory
+data:
+  PORT: "8083"
+  CONFIG_UID: "root"
+  CONFIG_PWD: "p@ssw0rd"
+  CONFIG_URI: "http://shopping-config:8888"
+  GIT_LABEL: "main"
+  EUREKA_URI: "http://shopping-discovery:8761"

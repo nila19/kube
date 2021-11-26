@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-discovery
+  labels:
+    app: shopping-discovery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopping-discovery
+  template:
+    metadata:
+      labels:
+        app: shopping-discovery
+    spec:
+      containers:
+      - name: shopping-discovery
+        image: balavigneswaran/spring-cloud/discoveryserver:0.0.1-SNAPSHOT
+        imagePullPolicy: Never
+        resources:
+          limits:
+            memory: "0.6G"
+            cpu: "0.25"
+        ports:
+        - containerPort: 8761
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: dev
+        envFrom:
+          - configMapRef:
+              name: shopping-discovery-app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-discovery
+  labels:
+    app: shopping-discovery
+spec:
+  type: LoadBalancer
+  selector:
+    app: shopping-discovery
+  ports:
+  - port: 8761
+    targetPort: 8761
+    protocol: TCP
+    name: http
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shopping-discovery-app
+  labels:
+    app: shopping-discovery
+data:
+  PORT: "8761"
+  CONFIG_UID: "root"
+  CONFIG_PWD: "p@ssw0rd"
+  CONFIG_URI: "http://shopping-config:8888"
+  GIT_LABEL: "main"
