@@ -1,63 +1,63 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shopping-inventory
+  name: shopping-payment2
   labels:
-    app: shopping-inventory
+    app: shopping-payment2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: shopping-inventory
+      app: shopping-payment2
   template:
     metadata:
       labels:
-        app: shopping-inventory
+        app: shopping-payment2
     spec:
       containers:
-      - name: shopping-inventory
-        image: balavigneswaran/spring-cloud/inventory:0.0.1-SNAPSHOT
+      - name: shopping-payment2
+        image: balavigneswaran/spring-cloud/payment-pks:0.0.1-SNAPSHOT
         imagePullPolicy: Never
         resources:
           limits:
             memory: "0.5G"
             cpu: "0.25"
         ports:
-        - containerPort: 8083
+        - containerPort: 8284
         env:
           - name: SPRING_PROFILES_ACTIVE
             value: dev
         envFrom:
           - configMapRef:
-              name: shopping-inventory-app
+              name: shopping-payment2-app
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: shopping-inventory
+  name: shopping-payment2
   labels:
-    app: shopping-inventory
+    app: shopping-payment2
     primary-port-name: http
 spec:
   type: LoadBalancer
   selector:
-    app: shopping-inventory
+    app: shopping-payment2
   ports:
-  - port: 8083
-    targetPort: 8083
+  - port: 8284
+    targetPort: 8284
     protocol: TCP
     name: http
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: shopping-inventory-app
+  name: shopping-payment2-app
   labels:
-    app: shopping-inventory
+    app: shopping-payment2
 data:
-  PORT: "8083"
-  CONFIG_UID: "root"
-  CONFIG_PWD: "p@ssw0rd"
-  CONFIG_URI: "http://shopping-config:8888"
-  GIT_LABEL: "main"
-  EUREKA_URI: "http://shopping-discovery:8761"
+  PORT: "8284"
+  # CONFIG_UID: "root"
+  # CONFIG_PWD: "p@ssw0rd"
+  # CONFIG_URI: "http://shopping-config:8888"
+  # GIT_LABEL: "main"
+  # EUREKA_URI: "http://shopping-discovery:8761"

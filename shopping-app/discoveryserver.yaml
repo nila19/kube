@@ -37,6 +37,7 @@ metadata:
   name: shopping-discovery
   labels:
     app: shopping-discovery
+    primary-port-name: http
 spec:
   type: LoadBalancer
   selector:
