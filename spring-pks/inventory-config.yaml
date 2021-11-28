@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inventory-pks-dev
+  labels:
+    app: inventory2
+data:
+  application-dev.yaml: |-
+      app:
+        qty:
+          limit: 35
