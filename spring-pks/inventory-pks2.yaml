@@ -27,10 +27,6 @@ spec:
         env:
           - name: SPRING_PROFILES_ACTIVE
             value: dev
-          - name: KUBERNETES
-            value: "true"
-          - name: KUBE_RELOAD_MODE
-            value: polling
         envFrom:
           - configMapRef:
               name: inventory2-env
@@ -60,6 +56,8 @@ metadata:
     app: inventory2
 data:
   PORT: "8283"
+  KUBERNETES: "true"
+  KUBE_RELOAD_MODE: polling
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -173,4 +171,6 @@ data:
         defaults:
           enabled: true
         circuitbreakers:
+          enabled: true
+        kubernetes:
           enabled: true

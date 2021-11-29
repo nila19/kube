@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment2
+  labels:
+    app: payment2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment2
+  template:
+    metadata:
+      labels:
+        app: payment2
+    spec:
+      containers:
+      - name: payment2
+        image: balavigneswaran/spring-cloud/payment-pks:0.0.1-SNAPSHOT
+        imagePullPolicy: Never
+        resources:
+          limits:
+            memory: "0.5G"
+            cpu: "0.25"
+        ports:
+        - containerPort: 8284
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: dev
+        envFrom:
+          - configMapRef:
+              name: payment2-env
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment2
+  labels:
+    app: payment2
+    primary-port-name: http
+spec:
+  type: LoadBalancer
+  selector:
+    app: payment2
+  ports:
+  - port: 8284
+    targetPort: 8284
+    protocol: TCP
+    name: http
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment2-env
+  labels:
+    app: payment2
+data:
+  PORT: "8284"
+  KUBERNETES: "true"
+  KUBE_RELOAD_MODE: polling
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-pks-dev
+  labels:
+    app: payment2
+data:
+  application-dev.yaml: |-
+      app:
+        cost:
+          limit: 200
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-pks-default
+  labels:
+    app: payment2
+data:
+  application.yaml: |-
+    server:
+      port: ${PORT:8184}
+    app:
+      cost:
+        limit: 100
+    spring:
+      application:
+        name: payment
+    management:
+      endpoints:
+        enabled-by-default: false
+        web:
+          exposure:
+            include: health, info, metrics
+      endpoint:
+        info:
+          enabled: true
+        metrics:
+          enabled: true
+        health:
+          enabled: true
+          show-details: always
+          probes:
+            enabled: true
+      health:
+        readinessstate:
+          enabled: true
+        livenessstate:
+          enabled: true
+        defaults:
+          enabled: true
+        kubernetes:
+          enabled: true
